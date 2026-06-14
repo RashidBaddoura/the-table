@@ -408,7 +408,14 @@ a:hover { text-decoration: underline; }
   opacity: .9;
 }
 
-/* Centre vs / score */
+/* Centre vs / score — wrapped in match-center flex row with optional avatars */
+.match-center {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  flex-shrink: 0;
+}
+
 .match-vs {
   font-size: .8rem;
   font-weight: 700;

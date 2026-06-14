@@ -231,9 +231,11 @@ function matchCard(m, isLive) {
     meta = `<div class="match-meta">${esc(dateStr)}  ·  ${esc(timeStr)}</div>`;
   }
 
+  const av1 = o1 ? avatarEl(o1, 26) : '';
+  const av2 = o2 ? avatarEl(o2, 26) : '';
   const centerPiece = isLive
-    ? `<div class="match-vs live-vs">—</div>`
-    : `<div class="match-vs">vs</div>`;
+    ? `<div class="match-center">${av1}<div class="match-vs live-vs">—</div>${av2}</div>`
+    : `<div class="match-center">${av1}<div class="match-vs">vs</div>${av2}</div>`;
 
   // Both sides have identical structure: team name on top, owner below.
   // Only text-align differs (left vs right).
@@ -363,7 +365,9 @@ function resultCard(m) {
     </div>`;
   };
 
-  const score = `<div class="match-vs result-score">${g1} – ${g2}</div>`;
+  const av1 = o1 ? avatarEl(o1, 26) : '';
+  const av2 = o2 ? avatarEl(o2, 26) : '';
+  const score = `<div class="match-center">${av1}<div class="match-vs result-score">${g1} – ${g2}</div>${av2}</div>`;
 
   const cls = ['match-card result-card', m.isH2H ? 'match-h2h' : '']
     .filter(Boolean).join(' ');
