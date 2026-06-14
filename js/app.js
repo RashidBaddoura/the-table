@@ -1,4 +1,4 @@
-import { ROSTER } from './config.js';
+import { ROSTER, MANUAL_ADJUSTMENTS } from './config.js';
 import { computeLeaderboard, buildOwnerMap } from './scoring.js';
 import { loadData } from './data.js';
 import {
@@ -49,7 +49,7 @@ function render(data, source) {
     return;
   }
 
-  const { leaderboard } = computeLeaderboard(data.matches, ROSTER);
+  const { leaderboard } = computeLeaderboard(data.matches, ROSTER, MANUAL_ADJUSTMENTS);
 
   // Leaderboard
   lbLoading.classList.add('hidden');
@@ -64,7 +64,7 @@ function render(data, source) {
   // Results
   rLoading.classList.add('hidden');
   rContent.classList.remove('hidden');
-  renderResults(data.matches, ownerMap, rContent);
+  renderResults(data.matches, ownerMap, MANUAL_ADJUSTMENTS, rContent);
 
   // Last-updated footer
   lastUpdatedEl.textContent = `Updated ${new Date().toLocaleTimeString(undefined, {

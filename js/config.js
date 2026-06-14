@@ -91,6 +91,12 @@ export const FLAGS = {
   'Iraq':                 '🇮🇶',
 };
 
+// ─── Manual point adjustments ────────────────────────────────────────────────
+// Add entries here for any manual point changes. Shown as cards on Results page.
+export const MANUAL_ADJUSTMENTS = [
+  { person: 'saja', points: 2, reason: 'Curaçao has like 20 people.', date: '2026-06-14' },
+];
+
 // ─── Per-person badge colors (one per person, in ROSTER order) ───────────────
 export const PERSON_COLORS = {
   sudais:  '#6366f1',

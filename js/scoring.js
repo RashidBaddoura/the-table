@@ -177,7 +177,7 @@ export function computeStats(matches) {
 
 // ─── Leaderboard ──────────────────────────────────────────────────────────────
 
-export function computeLeaderboard(matches, roster) {
+export function computeLeaderboard(matches, roster, adjustments = []) {
   const { stats, realTeamNames, normToName } = computeStats(matches);
 
   // Log name mismatches at load time so they're immediately visible in the console.
@@ -211,6 +211,16 @@ export function computeLeaderboard(matches, roster) {
 
     return { person, teams: personTeams, totalPoints, goalsFor, goalDiff, teamsAlive };
   });
+
+  // Apply manual adjustments
+  const adjMap = new Map();
+  for (const adj of adjustments) {
+    adjMap.set(adj.person, (adjMap.get(adj.person) || 0) + adj.points);
+  }
+  for (const entry of leaderboard) {
+    entry.adjustmentPoints = adjMap.get(entry.person) || 0;
+    entry.totalPoints += entry.adjustmentPoints;
+  }
 
   leaderboard.sort((a, b) => {
     if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;

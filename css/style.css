@@ -532,6 +532,43 @@ a:hover { text-decoration: underline; }
   font-weight: 800;
 }
 
+/* ── Adjustment cards ──────────────────────────────────────────────────────── */
+.adj-card {
+  border-left: 3px solid #1a6b3c;
+  background: linear-gradient(to right, #f0faf4, var(--card));
+}
+
+.adj-who {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+}
+
+.adj-name {
+  font-weight: 700;
+  font-size: .95rem;
+}
+
+.adj-pts {
+  font-size: .78rem;
+  padding: .15rem .4rem;
+}
+
+.adj-reason {
+  margin-top: .5rem;
+  margin-left: calc(36px + .55rem);
+  font-size: .82rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.adj-date {
+  margin-top: .2rem;
+  margin-left: calc(36px + .55rem);
+  font-size: .72rem;
+  color: var(--muted);
+}
+
 .result-owner-row {
   display: flex;
   align-items: center;
