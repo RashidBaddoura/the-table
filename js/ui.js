@@ -12,6 +12,35 @@ function esc(s) {
 function lc(s) { return String(s).toLowerCase(); }
 function fmtSign(n) { return n > 0 ? '+' + n : String(n); }
 
+// ─── Qatar timezone helpers (UTC+3, no label shown) ───────────────────────────
+
+const QATAR_TZ = 'Asia/Qatar';
+
+function fmtQatarTime(dt) {
+  return dt.toLocaleTimeString('en-US', {
+    timeZone: QATAR_TZ, hour: 'numeric', minute: '2-digit', hour12: true,
+  });
+}
+
+function toQatarDateKey(dt) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: QATAR_TZ }).format(dt);
+}
+
+function qatarDateLabel(dt) {
+  const key       = toQatarDateKey(dt);
+  const today     = toQatarDateKey(new Date());
+  const yesterday = toQatarDateKey(new Date(Date.now() - 86400000));
+  const tomorrow  = toQatarDateKey(new Date(Date.now() + 86400000));
+  if (key === yesterday) return 'Yesterday';
+  if (key === today)     return 'Today';
+  if (key === tomorrow)  return 'Tomorrow';
+  return dt.toLocaleDateString('en-US', {
+    timeZone: QATAR_TZ, weekday: 'short', month: 'short', day: 'numeric',
+  });
+}
+
+// ─── Stage helpers ────────────────────────────────────────────────────────────
+
 function stageLabel(stageName) {
   const map = {
     'Round of 32':   'R32',
@@ -41,24 +70,8 @@ function ptsBreakdown(t) {
   return parts.join('  ·  ') || '—';
 }
 
-// Single local-timezone time string.
-function fmtLocalTime(dt) {
-  return dt.toLocaleTimeString(undefined, {
-    hour: 'numeric', minute: '2-digit', hour12: true, timeZoneName: 'short',
-  });
-}
+// ─── Match state ──────────────────────────────────────────────────────────────
 
-function fmtDateLabel(dt) {
-  const today    = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-  const same = (a, b) => a.toDateString() === b.toDateString();
-  if (same(dt, today))    return 'Today';
-  if (same(dt, tomorrow)) return 'Tomorrow';
-  return dt.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-}
-
-// 'live' if kickoff was < 130 min ago and no final score yet.
 function matchState(m, now) {
   if (m.score?.ft) return 'done';
   const dt = m.time ? parseMatchTime(m.date, m.time) : null;
@@ -125,7 +138,6 @@ export function renderLeaderboard(leaderboard, container) {
 export function renderMatches(matches, ownerMap, container) {
   const now = Date.now();
 
-  // Enrich all non-final matches owned by someone.
   const candidates = matches
     .filter((m) => {
       if (m.score?.ft) return false;
@@ -154,7 +166,7 @@ export function renderMatches(matches, ownerMap, container) {
 
   let html = '';
 
-  // ── Live now ────────────────────────────────────────────────────────────────
+  // ── Live now ──────────────────────────────────────────────────────────────
   if (live.length) {
     html += `<div class="schedule-section">
       <h2 class="section-heading"><span class="live-indicator"></span> Live now</h2>
@@ -163,18 +175,19 @@ export function renderMatches(matches, ownerMap, container) {
     html += '</div></div>';
   }
 
-  // ── Upcoming, grouped by date ────────────────────────────────────────────────
+  // ── Upcoming, grouped by Qatar date ───────────────────────────────────────
   const byDate = new Map();
   for (const m of upcoming) {
-    if (!byDate.has(m.date)) byDate.set(m.date, []);
-    byDate.get(m.date).push(m);
+    const key = m.dt ? toQatarDateKey(m.dt) : m.date;
+    if (!byDate.has(key)) byDate.set(key, []);
+    byDate.get(key).push(m);
   }
 
   if (byDate.size) {
     html += `<div class="schedule-section ${live.length ? 'mt-section' : ''}">`;
     for (const [, dayMatches] of byDate) {
       const firstDt = dayMatches.find((m) => m.dt)?.dt;
-      const label   = firstDt ? fmtDateLabel(firstDt) : dayMatches[0].date;
+      const label   = firstDt ? qatarDateLabel(firstDt) : dayMatches[0].date;
       html += `<h2 class="section-heading">${esc(label)}</h2>
         <div class="match-list">`;
       for (const m of dayMatches) html += matchCard(m, false);
@@ -187,13 +200,13 @@ export function renderMatches(matches, ownerMap, container) {
 }
 
 function matchCard(m, isLive) {
-  const o1    = m.owner1;
-  const o2    = m.owner2;
-  const c1    = o1 ? PERSON_COLORS[o1] || '#6b7280' : null;
-  const c2    = o2 ? PERSON_COLORS[o2] || '#6b7280' : null;
+  const o1 = m.owner1;
+  const o2 = m.owner2;
+  const c1 = o1 ? PERSON_COLORS[o1] || '#6b7280' : null;
+  const c2 = o2 ? PERSON_COLORS[o2] || '#6b7280' : null;
 
-  const timeStr = m.dt ? fmtLocalTime(m.dt) : (m.time || '');
-  const dateStr = m.dt ? fmtDateLabel(m.dt) : m.date;
+  const timeStr = m.dt ? fmtQatarTime(m.dt) : (m.time || '');
+  const dateStr = m.dt ? qatarDateLabel(m.dt) : m.date;
 
   let meta = '';
   if (isLive) {
@@ -206,20 +219,14 @@ function matchCard(m, isLive) {
     ? `<div class="match-vs live-vs">—</div>`
     : `<div class="match-vs">vs</div>`;
 
+  // Both sides have identical structure: team name on top, owner below.
+  // Only text-align differs (left vs right).
   const side = (name, owner, color, align) => {
-    const nm    = esc(name || '?');
-    const lcNm  = nm.toLowerCase();
-    const tag   = owner
+    const tag = owner
       ? `<span class="owner-tag" style="color:${color}">${lc(esc(owner))}</span>`
       : '';
-    if (align === 'right') {
-      return `<div class="match-side right">
-        ${tag}
-        <div class="team-nm-lg">${lcNm}</div>
-      </div>`;
-    }
-    return `<div class="match-side left">
-      <div class="team-nm-lg">${lcNm}</div>
+    return `<div class="match-side ${align}">
+      <div class="team-nm-lg">${esc(name || '?')}</div>
       ${tag}
     </div>`;
   };
@@ -240,6 +247,88 @@ function matchCard(m, isLive) {
       ${side(m.team2, o2, c2, 'right')}
     </div>
     ${venue}
+  </div>`;
+}
+
+// ─── Results ──────────────────────────────────────────────────────────────────
+
+export function renderResults(matches, ownerMap, container) {
+  const completed = matches
+    .filter((m) => {
+      if (!m.score?.ft) return false;
+      return (
+        ownerMap.has(normalize(m.team1 || '')) ||
+        ownerMap.has(normalize(m.team2 || ''))
+      );
+    })
+    .map((m) => {
+      const dt     = m.time ? parseMatchTime(m.date, m.time) : null;
+      const owner1 = ownerMap.get(normalize(m.team1 || '')) || null;
+      const owner2 = ownerMap.get(normalize(m.team2 || '')) || null;
+      const isH2H  = !!(owner1 && owner2 && owner1 !== owner2);
+      return { ...m, dt, owner1, owner2, isH2H };
+    })
+    .sort((a, b) => (b.dt?.getTime() ?? 0) - (a.dt?.getTime() ?? 0));
+
+  if (!completed.length) {
+    container.innerHTML = '<p class="empty-state">No completed matches yet.</p>';
+    return;
+  }
+
+  // Group by Qatar date, most recent first
+  const byDate = new Map();
+  for (const m of completed) {
+    const key = m.dt ? toQatarDateKey(m.dt) : m.date;
+    if (!byDate.has(key)) byDate.set(key, []);
+    byDate.get(key).push(m);
+  }
+
+  let html = '<div class="schedule-section">';
+  for (const [, dayMatches] of byDate) {
+    const firstDt = dayMatches.find((m) => m.dt)?.dt;
+    const label   = firstDt ? qatarDateLabel(firstDt) : dayMatches[0].date;
+    html += `<h2 class="section-heading">${esc(label)}</h2>
+      <div class="match-list">`;
+    for (const m of dayMatches) html += resultCard(m);
+    html += '</div>';
+  }
+  html += '</div>';
+
+  container.innerHTML = html;
+}
+
+function resultCard(m) {
+  const o1 = m.owner1;
+  const o2 = m.owner2;
+  const c1 = o1 ? PERSON_COLORS[o1] || '#6b7280' : null;
+  const c2 = o2 ? PERSON_COLORS[o2] || '#6b7280' : null;
+
+  const [g1, g2] = m.score.ft;
+  const w1 = g1 > g2;
+  const w2 = g2 > g1;
+
+  const side = (name, owner, color, align, won) => {
+    const tag = owner
+      ? `<span class="owner-tag" style="color:${color}">${lc(esc(owner))}</span>`
+      : '';
+    return `<div class="match-side ${align}">
+      <div class="team-nm-lg ${won ? 'result-winner' : ''}">${esc(name || '?')}</div>
+      ${tag}
+    </div>`;
+  };
+
+  const score = `<div class="match-vs result-score">${g1} – ${g2}</div>`;
+
+  const cls = ['match-card result-card', m.isH2H ? 'match-h2h' : '']
+    .filter(Boolean).join(' ');
+
+  return `
+  <div class="${cls}">
+    <div class="match-body">
+      ${side(m.team1, o1, c1, 'left', w1)}
+      ${score}
+      ${side(m.team2, o2, c2, 'right', w2)}
+    </div>
   </div>`;
 }
 

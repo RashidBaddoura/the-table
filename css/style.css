@@ -1,16 +1,16 @@
 /* ── Reset & Variables ─────────────────────────────────────────────────────── */
 :root {
-  --bg:        #f6f6f4;
-  --card:      #ffffff;
-  --header:    #111111;
+  --bg:        #f0ede6;
+  --card:      #fefcf9;
+  --header:    #1c2d20;
   --accent:    #1a6b3c;
-  --text:      #111111;
-  --muted:     #888888;
-  --border:    #e0e0e0;
-  --live:      #d13030;
-  --elim-c:    #aaaaaa;
+  --text:      #1a1814;
+  --muted:     #7d7568;
+  --border:    #dbd6cd;
+  --live:      #c0392b;
+  --elim-c:    #b0a89e;
   --radius:    6px;
-  --shadow:    0 1px 4px rgba(0,0,0,.08);
+  --shadow:    0 1px 4px rgba(0,0,0,.07);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -154,8 +154,9 @@ a:hover { text-decoration: underline; }
 
 /* header */
 .lb-head-row {
-  background: #f0f0ee;
+  background: #ece8df;
   border-bottom: 1px solid var(--border);
+  border-left: 3px solid transparent; /* match data-row indent */
   height: 2.2rem;
   font-size: .7rem;
   font-weight: 600;
@@ -179,7 +180,7 @@ a:hover { text-decoration: underline; }
   border-left: 3px solid transparent;
   transition: background .1s;
 }
-.lb-main-row:hover { background: #fafafa; }
+.lb-main-row:hover { background: #f8f5f0; }
 .lb-main-row:has(.rank-top) { border-left-color: var(--person-color); }
 
 .rank-n {
@@ -211,7 +212,7 @@ a:hover { text-decoration: underline; }
 
 /* team sub-rows */
 .lb-teams {
-  background: #fafafa;
+  background: #f7f4ef;
   border-top: 1px solid var(--border);
   padding: .35rem 1rem .5rem 2.9rem;
 }
@@ -439,7 +440,7 @@ a:hover { text-decoration: underline; }
   text-align: left;
 }
 .hiw-table th {
-  background: #f0f0ee;
+  background: #ece8df;
   font-size: .7rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -457,8 +458,25 @@ a:hover { text-decoration: underline; }
   line-height: 1.6;
   margin-top: .6rem;
   padding: .6rem .8rem;
-  background: #f0f0ee;
+  background: #ece8df;
   border-radius: var(--radius);
+}
+
+/* ── Results ────────────────────────────────────────────────────────────────── */
+.result-card {
+  padding: .85rem 1.25rem;
+}
+
+.result-score {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: 1px;
+  font-variant-numeric: tabular-nums;
+}
+
+.result-winner {
+  font-weight: 800;
 }
 .hiw-list {
   padding-left: 1.25rem;

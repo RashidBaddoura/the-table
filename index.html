@@ -17,6 +17,7 @@
       <nav class="main-nav" aria-label="Main navigation">
         <button class="nav-btn active" data-tab="leaderboard">Standings</button>
         <button class="nav-btn" data-tab="matches">Schedule</button>
+        <button class="nav-btn" data-tab="results">Results</button>
         <button class="nav-btn" data-tab="how-it-works">Scoring</button>
         <button id="refresh-btn" class="refresh-btn" title="Refresh live data" aria-label="Refresh">↻</button>
       </nav>
@@ -43,6 +44,15 @@
         <p>Loading matches&hellip;</p>
       </div>
       <div id="matches-content" class="hidden"></div>
+    </section>
+
+    <!-- Results -->
+    <section id="tab-results" class="tab-panel" aria-label="Recent results">
+      <div class="loading-state" id="results-loading">
+        <div class="spinner" role="progressbar" aria-label="Loading results"></div>
+        <p>Loading results&hellip;</p>
+      </div>
+      <div id="results-content" class="hidden"></div>
     </section>
 
     <!-- How It Works -->

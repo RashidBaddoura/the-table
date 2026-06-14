@@ -2,7 +2,7 @@ import { ROSTER } from './config.js';
 import { computeLeaderboard, buildOwnerMap } from './scoring.js';
 import { loadData } from './data.js';
 import {
-  renderLeaderboard, renderMatches, renderHowItWorks, renderStatus,
+  renderLeaderboard, renderMatches, renderResults, renderHowItWorks, renderStatus,
 } from './ui.js';
 
 // ─── DOM refs ─────────────────────────────────────────────────────────────────
@@ -16,6 +16,8 @@ const lbLoading  = document.getElementById('leaderboard-loading');
 const lbContent  = document.getElementById('leaderboard-content');
 const mLoading   = document.getElementById('matches-loading');
 const mContent   = document.getElementById('matches-content');
+const rLoading   = document.getElementById('results-loading');
+const rContent   = document.getElementById('results-content');
 const hiwContent = document.getElementById('how-it-works-content');
 
 // ─── Tab switching ────────────────────────────────────────────────────────────
@@ -42,6 +44,7 @@ function render(data, source) {
     if (source === 'error') {
       lbLoading.innerHTML = '<p class="error-state">Failed to load data.</p>';
       mLoading.innerHTML  = '<p class="error-state">Failed to load data.</p>';
+      rLoading.innerHTML  = '<p class="error-state">Failed to load data.</p>';
     }
     return;
   }
@@ -57,6 +60,11 @@ function render(data, source) {
   mLoading.classList.add('hidden');
   mContent.classList.remove('hidden');
   renderMatches(data.matches, ownerMap, mContent);
+
+  // Results
+  rLoading.classList.add('hidden');
+  rContent.classList.remove('hidden');
+  renderResults(data.matches, ownerMap, rContent);
 
   // Last-updated footer
   lastUpdatedEl.textContent = `Updated ${new Date().toLocaleTimeString(undefined, {

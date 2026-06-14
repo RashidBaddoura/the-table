@@ -25,18 +25,23 @@ function getKnockoutStage(round) {
   return null;
 }
 
-// Parse "HH:MM UTC±N" → UTC Date object.
+// Parse "HH:MM UTC±N" → UTC Date object, handling midnight crossings.
 export function parseMatchTime(date, timeStr) {
   const m = timeStr.match(/^(\d{1,2}):(\d{2})\s+UTC([+-])(\d+)/);
   if (!m) return null;
   const [, h, min, sign, off] = m;
-  const localMin  = parseInt(h) * 60 + parseInt(min);
-  const offsetMin = parseInt(off) * 60 * (sign === '+' ? 1 : -1);
-  const utcMin    = ((localMin - offsetMin) % 1440 + 1440) % 1440;
+  const localMin   = parseInt(h) * 60 + parseInt(min);
+  const offsetMin  = parseInt(off) * 60 * (sign === '+' ? 1 : -1);
+  const rawUtcMin  = localMin - offsetMin;
+  const dayOffset  = rawUtcMin >= 1440 ? 1 : rawUtcMin < 0 ? -1 : 0;
+  const utcMin     = ((rawUtcMin % 1440) + 1440) % 1440;
   const utcH = Math.floor(utcMin / 60);
   const utcM = utcMin % 60;
+  const base = new Date(`${date}T00:00:00Z`);
+  base.setUTCDate(base.getUTCDate() + dayOffset);
+  const d = base.toISOString().slice(0, 10);
   return new Date(
-    `${date}T${String(utcH).padStart(2, '0')}:${String(utcM).padStart(2, '0')}:00Z`
+    `${d}T${String(utcH).padStart(2, '0')}:${String(utcM).padStart(2, '0')}:00Z`
   );
 }
 
