@@ -297,6 +297,26 @@ export function renderResults(matches, ownerMap, container) {
   container.innerHTML = html;
 }
 
+function resultMatchPts(m, forTeam1) {
+  const [g1, g2] = m.score.ft;
+  const myG = forTeam1 ? g1 : g2;
+  const thG = forTeam1 ? g2 : g1;
+  if (m.group !== undefined) {
+    if (myG > thG) return SCORING.group.win;
+    if (myG === thG) return SCORING.group.draw;
+    return SCORING.group.loss;
+  }
+  // Knockout: winner gets progression bonus
+  if (myG <= thG) return 0;
+  const r = (m.round || '').toLowerCase();
+  if (r.includes('round of 32')) return SCORING.progression['Round of 32'];
+  if (r.includes('round of 16')) return SCORING.progression['Round of 16'];
+  if (r.includes('quarter'))     return SCORING.progression['Quarterfinals'];
+  if (r.includes('semi'))        return SCORING.progression['Semifinals'];
+  if (r.includes('final'))       return SCORING.progression['Final'];
+  return 0;
+}
+
 function resultCard(m) {
   const o1 = m.owner1;
   const o2 = m.owner2;
@@ -307,9 +327,19 @@ function resultCard(m) {
   const w1 = g1 > g2;
   const w2 = g2 > g1;
 
-  const side = (name, owner, color, align, won) => {
+  const ptsChip = (pts) => {
+    if (pts === null) return '';
+    const cls = pts > 0 ? 'result-pts pts-gain' : 'result-pts pts-zero';
+    return `<span class="${cls}">${pts > 0 ? '+' : ''}${pts} pts</span>`;
+  };
+
+  const side = (name, owner, color, align, won, forTeam1) => {
+    const pts = owner ? resultMatchPts(m, forTeam1) : null;
     const tag = owner
-      ? `<span class="owner-tag" style="color:${color}">${lc(esc(owner))}</span>`
+      ? `<div class="result-owner-row">
+           <span class="owner-tag" style="color:${color}">${lc(esc(owner))}</span>
+           ${ptsChip(pts)}
+         </div>`
       : '';
     return `<div class="match-side ${align}">
       <div class="team-nm-lg ${won ? 'result-winner' : ''}">${esc(name || '?')}</div>
@@ -325,9 +355,9 @@ function resultCard(m) {
   return `
   <div class="${cls}">
     <div class="match-body">
-      ${side(m.team1, o1, c1, 'left', w1)}
+      ${side(m.team1, o1, c1, 'left', w1, true)}
       ${score}
-      ${side(m.team2, o2, c2, 'right', w2)}
+      ${side(m.team2, o2, c2, 'right', w2, false)}
     </div>
   </div>`;
 }

@@ -478,6 +478,36 @@ a:hover { text-decoration: underline; }
 .result-winner {
   font-weight: 800;
 }
+
+.result-owner-row {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  flex-wrap: wrap;
+}
+
+.match-side.right .result-owner-row {
+  justify-content: flex-end;
+}
+
+.result-pts {
+  font-size: .68rem;
+  font-weight: 700;
+  padding: .1rem .3rem;
+  border-radius: 3px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pts-gain {
+  background: #d4edda;
+  color: #1a6b3c;
+}
+
+.pts-zero {
+  background: #f0ede6;
+  color: var(--muted);
+}
 .hiw-list {
   padding-left: 1.25rem;
   font-size: .85rem;
