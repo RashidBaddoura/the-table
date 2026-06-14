@@ -39,6 +39,21 @@ function qatarDateLabel(dt) {
   });
 }
 
+// ─── Avatar ───────────────────────────────────────────────────────────────────
+
+function avatarEl(person, size = 34) {
+  const color = PERSON_COLORS[person] || '#6b7280';
+  const init  = person[0].toUpperCase();
+  const slug  = person.toLowerCase();
+  const redCls = person === 'zeina' ? ' av-img--red' : '';
+  // onerror cycles jpg → jpeg → png → webp, then falls back to initials
+  const onErr = `(function(i){var e=['jpeg','png','webp'],n=+(i.dataset.n||0);if(n<e.length){i.dataset.n=n+1;i.src='pfps/${slug}.'+e[n];}else{i.style.display='none';i.nextElementSibling.style.display='flex';}})(this)`;
+  return `<span class="av-wrap" style="--av-sz:${size}px;--av-c:${color}">` +
+    `<img class="av-img${redCls}" src="pfps/${slug}.jpg" data-n="0" onerror="${onErr}" alt="">` +
+    `<span class="av-init">${init}</span>` +
+    `</span>`;
+}
+
 // ─── Stage helpers ────────────────────────────────────────────────────────────
 
 function stageLabel(stageName) {
@@ -103,6 +118,7 @@ export function renderLeaderboard(leaderboard, container) {
       <div class="lb-row lb-main-row" style="--person-color:${color}">
         <span class="col-rank"><span class="rank-n ${rank <= 3 ? 'rank-top' : ''}">${rank}</span></span>
         <span class="col-name">
+          ${avatarEl(entry.person, 34)}
           <span class="person-name" style="border-bottom: 2px solid ${color}">${lc(esc(entry.person))}</span>
         </span>
         <span class="col-pts"><strong>${entry.totalPoints}</strong></span>
@@ -429,7 +445,10 @@ export function renderHowItWorks(container) {
       ${Object.entries(ROSTER).map(([person, teams]) => {
         const color = PERSON_COLORS[person] || '#6b7280';
         return `<div class="roster-card" style="--pc:${color}">
-          <span class="roster-name">${lc(esc(person))}</span>
+          <div class="roster-header">
+            ${avatarEl(person, 40)}
+            <span class="roster-name">${lc(esc(person))}</span>
+          </div>
           <ul class="roster-teams">
             ${teams.map((t) => `<li>${esc(t)}</li>`).join('')}
           </ul>

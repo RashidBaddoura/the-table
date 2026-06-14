@@ -94,10 +94,10 @@ export const FLAGS = {
 // ─── Per-person badge colors (one per person, in ROSTER order) ───────────────
 export const PERSON_COLORS = {
   sudais:  '#6366f1',
-  zeina:   '#06b6d4',
+  zeina:   '#ef4444',
   aboud:   '#10b981',
   AK:      '#f59e0b',
-  Rashid:  '#ef4444',
+  Rashid:  '#06b6d4',
   enoch:   '#8b5cf6',
   imron:   '#ec4899',
   jana:    '#14b8a6',

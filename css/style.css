@@ -277,6 +277,52 @@ a:hover { text-decoration: underline; }
 .stage[data-stage="Semifinals"]    { background: #f7e8f0; color: #8c2a60; }
 .stage[data-stage="Final"]         { background: #fef3d0; color: #7a5300; }
 
+/* ── Avatars ───────────────────────────────────────────────────────────────── */
+.av-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--av-sz, 34px);
+  height: var(--av-sz, 34px);
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--av-c, #6b7280);
+}
+
+.av-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.av-img--red {
+  filter: sepia(1) hue-rotate(-30deg) saturate(6);
+}
+
+.av-init {
+  display: none;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: calc(var(--av-sz, 34px) * 0.38);
+  font-weight: 700;
+  letter-spacing: -.3px;
+}
+
+/* col-name must flex to hold avatar + text */
+.col-name {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  min-width: 0;
+  overflow: hidden;
+}
+
 /* ── Schedule / Matches ────────────────────────────────────────────────────── */
 .schedule-section { }
 .mt-section { margin-top: 2rem; }
@@ -526,15 +572,19 @@ a:hover { text-decoration: underline; }
   border: 1px solid var(--border);
   border-left: 3px solid var(--pc, #ccc);
   border-radius: var(--radius);
-  padding: .6rem .75rem;
+  padding: .65rem .75rem;
   box-shadow: var(--shadow);
+}
+.roster-header {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .4rem;
 }
 .roster-name {
   font-weight: 700;
   font-size: .82rem;
   color: var(--pc, var(--text));
-  display: block;
-  margin-bottom: .25rem;
 }
 .roster-teams {
   list-style: none;
