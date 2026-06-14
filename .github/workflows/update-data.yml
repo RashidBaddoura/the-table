@@ -1,0 +1,38 @@
+name: Update World Cup Data
+
+on:
+  schedule:
+    # Every 30 minutes during the tournament (June–July 2026)
+    - cron: '*/30 * * * *'
+  workflow_dispatch:   # allow manual trigger from the Actions tab
+
+permissions:
+  contents: write      # needed to commit the updated JSON
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch latest data
+        run: node scripts/update-data.js
+
+      - name: Commit if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/worldcup.json
+          if git diff --cached --quiet; then
+            echo "No changes — data is already up to date."
+          else
+            git commit -m "chore: update worldcup data [skip ci]"
+            git push
+          fi
