@@ -20,6 +20,7 @@ export const ROSTER = {
   saja:    ['Japan', 'Curaçao', 'England'],
   sheen:   ['Saudi Arabia', 'Portugal', 'Haiti'],
   ren:     ['Croatia', 'Norway', 'Iraq'],
+  khadija: ['Sweden', 'Austria', 'Scotland'],
 };
 
 // ─── Scoring — edit this to tune all point values ────────────────────────────
@@ -89,12 +90,24 @@ export const FLAGS = {
   'Croatia':              '🇭🇷',
   'Norway':               '🇳🇴',
   'Iraq':                 '🇮🇶',
+  'Sweden':               '🇸🇪',
+  'Austria':              '🇦🇹',
+  'Scotland':             '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  'Cape Verde':           '🇨🇻',
+  'DR Congo':             '🇨🇩',
+  'Ghana':                '🇬🇭',
 };
 
 // ─── Manual point adjustments ────────────────────────────────────────────────
 // Add entries here for any manual point changes. Shown as cards on Results page.
 export const MANUAL_ADJUSTMENTS = [
   { person: 'saja', points: 2, reason: 'Curaçao has like 20 people.', date: '2026-06-14' },
+];
+
+// ─── Event announcements ──────────────────────────────────────────────────────
+// Non-scoring events shown as cards on the Results page.
+export const EVENTS = [
+  { person: 'khadija', message: 'Everyone welcome khadija!', date: '2026-06-16' },
 ];
 
 // ─── Per-person badge colors (one per person, in ROSTER order) ───────────────
@@ -113,4 +126,5 @@ export const PERSON_COLORS = {
   saja:    '#a855f7',
   sheen:   '#22c55e',
   ren:     '#fb923c',
+  khadija: '#d946ef',
 };

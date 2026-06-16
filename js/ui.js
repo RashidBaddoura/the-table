@@ -270,7 +270,7 @@ function matchCard(m, isLive) {
 
 // ─── Results ──────────────────────────────────────────────────────────────────
 
-export function renderResults(matches, ownerMap, adjustments, container) {
+export function renderResults(matches, ownerMap, adjustments, events, container) {
   const completed = matches
     .filter((m) => {
       if (!m.score?.ft) return false;
@@ -288,48 +288,71 @@ export function renderResults(matches, ownerMap, adjustments, container) {
     })
     .sort((a, b) => (b.dt?.getTime() ?? 0) - (a.dt?.getTime() ?? 0));
 
-  // ── Adjustment cards ─────────────────────────────────────────────────────
-  // Group adjustments by date (same date bucketing as match results)
-  const adjByDate = new Map();
+  // Bucket adjustments, events, and matches by date key
+  const adjByDate   = new Map();
+  const evtByDate   = new Map();
+  const matchByDate = new Map();
+
   for (const adj of adjustments) {
     const key = adj.date || 'misc';
     if (!adjByDate.has(key)) adjByDate.set(key, []);
     adjByDate.get(key).push(adj);
   }
-
-  // ── Match results ─────────────────────────────────────────────────────────
-  const matchByDate = new Map();
+  for (const evt of events) {
+    const key = evt.date || 'misc';
+    if (!evtByDate.has(key)) evtByDate.set(key, []);
+    evtByDate.get(key).push(evt);
+  }
   for (const m of completed) {
     const key = m.dt ? toQatarDateKey(m.dt) : m.date;
     if (!matchByDate.has(key)) matchByDate.set(key, []);
     matchByDate.get(key).push(m);
   }
 
-  if (!completed.length && !adjustments.length) {
+  if (!completed.length && !adjustments.length && !events.length) {
     container.innerHTML = '<p class="empty-state">No results yet.</p>';
     return;
   }
 
-  // Merge date keys, most recent first
-  const allKeys = [...new Set([...matchByDate.keys(), ...adjByDate.keys()])]
-    .sort((a, b) => b.localeCompare(a));
+  // Merge all date keys, most recent first
+  const allKeys = [...new Set([
+    ...matchByDate.keys(), ...adjByDate.keys(), ...evtByDate.keys(),
+  ])].sort((a, b) => b.localeCompare(a));
 
   let html = '<div class="schedule-section">';
   for (const key of allKeys) {
-    // Date label from first match on that date, or parse the key directly
     const dayMatches = matchByDate.get(key) || [];
     const firstDt    = dayMatches.find((m) => m.dt)?.dt
                     ?? (key !== 'misc' ? new Date(`${key}T12:00:00+03:00`) : null);
     const label = firstDt ? qatarDateLabel(firstDt) : key;
 
     html += `<h2 class="section-heading">${esc(label)}</h2><div class="match-list">`;
-    for (const adj of (adjByDate.get(key) || [])) html += adjustmentCard(adj);
-    for (const m   of dayMatches)                 html += resultCard(m);
+    for (const evt of (evtByDate.get(key) || []))  html += eventCard(evt);
+    for (const adj of (adjByDate.get(key) || []))  html += adjustmentCard(adj);
+    for (const m   of dayMatches)                   html += resultCard(m);
     html += '</div>';
   }
   html += '</div>';
 
   container.innerHTML = html;
+}
+
+function eventCard(evt) {
+  const color   = evt.person ? (PERSON_COLORS[evt.person] || '#6b7280') : '#1c2d20';
+  const av      = evt.person ? avatarEl(evt.person, 36) : '';
+  const dateStr = evt.date
+    ? new Date(`${evt.date}T12:00:00+03:00`).toLocaleDateString('en-US', {
+        timeZone: QATAR_TZ, month: 'short', day: 'numeric', year: 'numeric',
+      })
+    : '';
+  return `
+  <div class="match-card evt-card">
+    <div class="adj-who">
+      ${av}
+      <span class="adj-name evt-message">${esc(evt.message)}</span>
+    </div>
+    ${dateStr ? `<p class="adj-date ${evt.person ? 'adj-date--indented' : ''}">${esc(dateStr)}</p>` : ''}
+  </div>`;
 }
 
 function adjustmentCard(adj) {

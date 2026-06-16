@@ -533,6 +533,20 @@ a:hover { text-decoration: underline; }
 }
 
 /* ── Adjustment cards ──────────────────────────────────────────────────────── */
+.evt-card {
+  border-left: 3px solid #d946ef;
+  background: linear-gradient(to right, #fdf4ff, var(--card));
+}
+
+.evt-message {
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.adj-date--indented {
+  margin-left: calc(36px + .55rem);
+}
+
 .adj-card {
   border-left: 3px solid #1a6b3c;
   background: linear-gradient(to right, #f0faf4, var(--card));
