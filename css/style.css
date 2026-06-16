@@ -302,6 +302,10 @@ a:hover { text-decoration: underline; }
   filter: sepia(1) hue-rotate(-30deg) saturate(6);
 }
 
+.av-img--khadija {
+  transform: scaleX(0.6) scaleY(1.35) rotate(4deg);
+}
+
 .av-init {
   display: none;
   width: 100%;

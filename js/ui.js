@@ -45,11 +45,11 @@ function avatarEl(person, size = 34) {
   const color = PERSON_COLORS[person] || '#6b7280';
   const init  = person[0].toUpperCase();
   const slug  = person.toLowerCase();
-  const redCls = person === 'zeina' ? ' av-img--red' : '';
+  const extraCls = person === 'zeina' ? ' av-img--red' : '';
   // onerror cycles jpg → jpeg → png → webp, then falls back to initials
   const onErr = `(function(i){var e=['jpeg','png','webp'],n=+(i.dataset.n||0);if(n<e.length){i.dataset.n=n+1;i.src='pfps/${slug}.'+e[n];}else{i.style.display='none';i.nextElementSibling.style.display='flex';}})(this)`;
   return `<span class="av-wrap" style="--av-sz:${size}px;--av-c:${color}">` +
-    `<img class="av-img${redCls}" src="pfps/${slug}.jpg" data-n="0" onerror="${onErr}" alt="">` +
+    `<img class="av-img av-img--${slug}${extraCls}" src="pfps/${slug}.jpg" data-n="0" onerror="${onErr}" alt="">` +
     `<span class="av-init">${init}</span>` +
     `</span>`;
 }
