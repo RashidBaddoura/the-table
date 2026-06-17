@@ -3,30 +3,30 @@ import { normalize, parseMatchTime } from './scoring.js';
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 
-function esc(s) {
+export function esc(s) {
   return String(s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;')
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function lc(s) { return String(s).toLowerCase(); }
+export function lc(s) { return String(s).toLowerCase(); }
 function fmtSign(n) { return n > 0 ? '+' + n : String(n); }
 
 // ─── Qatar timezone helpers (UTC+3, no label shown) ───────────────────────────
 
 const QATAR_TZ = 'Asia/Qatar';
 
-function fmtQatarTime(dt) {
+export function fmtQatarTime(dt) {
   return dt.toLocaleTimeString('en-US', {
     timeZone: QATAR_TZ, hour: 'numeric', minute: '2-digit', hour12: true,
   });
 }
 
-function toQatarDateKey(dt) {
+export function toQatarDateKey(dt) {
   return new Intl.DateTimeFormat('en-CA', { timeZone: QATAR_TZ }).format(dt);
 }
 
-function qatarDateLabel(dt) {
+export function qatarDateLabel(dt) {
   const key       = toQatarDateKey(dt);
   const today     = toQatarDateKey(new Date());
   const yesterday = toQatarDateKey(new Date(Date.now() - 86400000));
@@ -41,7 +41,7 @@ function qatarDateLabel(dt) {
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
 
-function avatarEl(person, size = 34) {
+export function avatarEl(person, size = 34) {
   const color = PERSON_COLORS[person] || '#6b7280';
   const init  = person[0].toUpperCase();
   const slug  = person.toLowerCase();

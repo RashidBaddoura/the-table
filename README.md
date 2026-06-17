@@ -130,3 +130,84 @@ npx serve .
 ```
 
 Then open `http://localhost:8080`.
+
+---
+
+# v2 — Logins & Match Predictions (Supabase backend)
+
+v2 adds authenticated, server-enforced **scoreline predictions** on top of the v1
+team leaderboard. The frontend stays on GitHub Pages (still vanilla JS, no build
+step); a **Supabase** project provides Auth + Postgres + Row-Level Security +
+Realtime + scheduled ingestion. **Until you paste your Supabase URL + anon key
+into `js/config.js`, the predictions features stay dormant and the v1 site works
+exactly as before** — so you can deploy the frontend before the backend exists.
+
+### Architecture in one paragraph
+The browser talks to Supabase with the **public anon key** (committed on purpose
+— security is enforced by RLS, never by hiding the key). Every fairness rule —
+when a prediction locks, who can see whose pick, immutability after lock, and the
+authoritative points — lives in the database (RLS policies, CHECK constraints,
+triggers, and SQL/Edge functions). The client is treated as untrusted. The secret
+**service_role** key is used only by the seed/admin scripts and the Edge Functions.
+
+### What's in the repo
+
+```
+supabase/
+  migrations/
+    0001_schema.sql     ← tables, indexes, is_locked()
+    0002_rls.sql        ← RLS policies, triggers, count/totals RPCs  (the core)
+    0003_cron.sql       ← pg_cron schedule that calls the ingest function
+  functions/
+    _shared/parse-time.js   ← "HH:MM UTC±N" → UTC  (unit-tested)
+    _shared/scoring.js      ← prediction scoring + match_key  (unit-tested)
+    _shared/run-scoring.js  ← idempotent settle of points_awarded
+    ingest/index.ts         ← fetch openfootball → upsert matches → settle scores
+    score/index.ts          ← manual "recompute all points" lever
+scripts/
+  seed-players.mjs      ← provision the auth users + players rows
+  reset-code.mjs        ← reset one player's 6-digit code
+  sync-supabase.mjs     ← fetch openfootball → upsert matches → settle scores
+                          (run locally or by the GitHub Action; no CLI needed)
+  players.example.json  ← copy to players.local.json (gitignored) and edit
+  admin.example.json    ← copy to admin.local.json (gitignored): url + service key
+js/
+  config.js             ← SUPABASE_URL / SUPABASE_ANON_KEY / SCORING_WEIGHTS
+  supabase.js           ← lazy client + auth + queries + realtime
+  predict.js            ← Predict tab, combined standings, countdowns, visibility
+  lock.js               ← client mirror of is_locked()  (unit-tested)
+tests/                  ← node --test:  parse-time, scoring tiers, lock
+```
+
+### Scoring (single source of truth)
+Point values live in the **`scoring_config`** table. Both the DB scoring logic
+and the Scoring tab read from it, so docs can't drift. Defaults:
+
+| Your prediction vs the **90-minute** result | Points |
+|---|---|
+| Exact scoreline | +5 |
+| Correct result **and** goal difference (non-draw) | +3 |
+| Correct result only | +2 |
+| Wrong result | 0 |
+
+Knockout matches decided in ET/penalties are scored on the **90' result** (an ET
+match counts as the draw it was at 90'). Draws can only hit the exact or
+correct-result tier. **Lock:** predictions freeze `lock_minutes` (default 60)
+before kickoff. **Visibility:** you can see another player's pick for a match only
+**after it locks and only if you predicted that match too.**
+
+To re-tune: `update scoring_config set value = 7 where key = 'exact_score';`
+then run the `score` function once to re-settle.
+
+### Run the tests
+```bash
+npm test          # node --test "tests/**/*.test.mjs"  — no install needed
+```
+
+### One-time Supabase setup
+Full click-by-click guide: **`supabase/SETUP.md`**. The easy path (no Supabase
+CLI, no Edge Functions, no cron) in short: create the project → run migrations
+`0001` + `0002` in the SQL Editor → disable sign-ups → put your URL + service key
+in `scripts/admin.local.json` → `node scripts/seed-players.mjs` →
+`node scripts/sync-supabase.mjs` → add the two GitHub Action secrets → paste URL
++ anon key into `js/config.js` → push. The GitHub Action then syncs every 30 min.

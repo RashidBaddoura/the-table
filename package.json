@@ -1,0 +1,10 @@
+{
+  "name": "the-table",
+  "version": "2.0.0",
+  "private": true,
+  "description": "World Cup 2026 fantasy leaderboard + match predictions.",
+  "scripts": {
+    "test": "node --test \"tests/**/*.test.mjs\"",
+    "verify": "node scripts/verify.js"
+  }
+}

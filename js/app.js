@@ -4,6 +4,7 @@ import { loadData } from './data.js';
 import {
   renderLeaderboard, renderMatches, renderResults, renderHowItWorks, renderStatus,
 } from './ui.js';
+import { createPredictions } from './predict.js';
 
 // ─── DOM refs ─────────────────────────────────────────────────────────────────
 const statusBar     = document.getElementById('status-bar');
@@ -19,22 +20,76 @@ const mContent   = document.getElementById('matches-content');
 const rLoading   = document.getElementById('results-loading');
 const rContent   = document.getElementById('results-content');
 const hiwContent = document.getElementById('how-it-works-content');
+const predContent     = document.getElementById('predict-content');
+const predScoringEl   = document.getElementById('prediction-scoring-content');
+const userChip        = document.getElementById('user-chip');
+const userChipName    = document.getElementById('user-chip-name');
+const logoutBtn       = document.getElementById('logout-btn');
+const toastEl         = document.getElementById('toast');
+
+// ─── Toast ──────────────────────────────────────────────────────────────────
+let toastTimer = null;
+function toast(msg) {
+  if (!toastEl) return;
+  toastEl.textContent = msg;
+  toastEl.classList.remove('hidden');
+  requestAnimationFrame(() => toastEl.classList.add('show'));
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toastEl.classList.remove('show');
+    setTimeout(() => toastEl.classList.add('hidden'), 300);
+  }, 3500);
+}
+
+// ─── Predictions controller (v2) ──────────────────────────────────────────────
+const predictions = createPredictions({
+  toast,
+  onStandingsDirty: () => { updateStandings(); refreshUserChip(); },
+});
+predictions.mount({ predict: predContent, standings: lbContent });
+
+let latestLeaderboard = [];
+
+// Choose standings renderer: combined (logged in) vs v1 team-only.
+function updateStandings() {
+  if (!latestLeaderboard.length) return;
+  lbLoading?.classList.add('hidden');
+  lbContent.classList.remove('hidden');
+  predictions.setLeaderboard(latestLeaderboard);
+  if (predictions.isReady() && predictions.currentUser()) {
+    predictions.renderStandings();
+  } else {
+    renderLeaderboard(latestLeaderboard, lbContent);
+  }
+}
+
+function refreshUserChip() {
+  const u = predictions.currentUser();
+  if (u && userChip) {
+    userChipName.textContent = String(u.display_name).toLowerCase();
+    userChip.classList.remove('hidden');
+  } else if (userChip) {
+    userChip.classList.add('hidden');
+  }
+}
+
+logoutBtn?.addEventListener('click', async () => {
+  await predictions.logout();
+  updateStandings();
+  refreshUserChip();
+});
 
 // ─── Tab switching ────────────────────────────────────────────────────────────
 navBtns.forEach((btn) => {
   btn.addEventListener('click', () => {
     const target = btn.dataset.tab;
     navBtns.forEach((b) => b.classList.toggle('active', b.dataset.tab === target));
-    tabPanels.forEach((p) =>
-      p.classList.toggle('active', p.id === `tab-${target}`)
-    );
+    tabPanels.forEach((p) => p.classList.toggle('active', p.id === `tab-${target}`));
   });
 });
 
 // ─── Render pipeline ──────────────────────────────────────────────────────────
 const ownerMap = buildOwnerMap(ROSTER);
-
-// Render "How It Works" once immediately (no data needed).
 renderHowItWorks(hiwContent);
 
 function render(data, source) {
@@ -50,11 +105,10 @@ function render(data, source) {
   }
 
   const { leaderboard } = computeLeaderboard(data.matches, ROSTER, MANUAL_ADJUSTMENTS);
+  latestLeaderboard = leaderboard;
 
-  // Leaderboard
-  lbLoading.classList.add('hidden');
-  lbContent.classList.remove('hidden');
-  renderLeaderboard(leaderboard, lbContent);
+  // Standings (combined or team-only depending on login).
+  updateStandings();
 
   // Upcoming matches
   mLoading.classList.add('hidden');
@@ -87,3 +141,14 @@ if (refreshBtn) {
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 loadData(render);
+
+predictions.init().then(() => {
+  predictions.renderPredict();
+  predictions.renderScoringDoc(predScoringEl);
+  updateStandings();
+  refreshUserChip();
+}).catch((err) => {
+  console.warn('Predictions init failed (v1 site still works):', err);
+  predictions.renderPredict();
+  predictions.renderScoringDoc(predScoringEl);
+});

@@ -699,3 +699,170 @@ a:hover { text-decoration: underline; }
     grid-template-columns: 2.8rem 1fr 3.6rem 3.4rem 3rem;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   v2 — Predictions, login, combined standings
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Header: user chip / logout / toast ─────────────────────────────────────── */
+.user-chip {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: .8rem; color: rgba(255,255,255,.85);
+}
+.logout-btn {
+  background: transparent; border: 1px solid rgba(255,255,255,.25);
+  color: rgba(255,255,255,.8); padding: .25rem .6rem;
+  border-radius: 4px; cursor: pointer; font-size: .75rem;
+}
+.logout-btn:hover { background: rgba(255,255,255,.1); }
+
+.toast {
+  position: fixed; left: 50%; bottom: 1.4rem; transform: translateX(-50%) translateY(12px);
+  background: var(--header); color: #fff; padding: .65rem 1.1rem;
+  border-radius: var(--radius); box-shadow: 0 4px 16px rgba(0,0,0,.25);
+  font-size: .85rem; font-weight: 600; z-index: 300; opacity: 0;
+  transition: opacity .25s, transform .25s; max-width: 90vw; text-align: center;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── Notices / login ────────────────────────────────────────────────────────── */
+.notice-card, .login-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 1.25rem 1.4rem; margin: .5rem 0;
+}
+.notice-card h3, .login-card h2 { margin-bottom: .35rem; font-size: 1.05rem; }
+.notice-card p, .login-sub { color: var(--muted); font-size: .85rem; }
+
+.login-card { max-width: 380px; margin: 1.5rem auto; text-align: center; }
+.login-form { display: flex; flex-direction: column; gap: .6rem; margin-top: 1rem; }
+.login-name, .login-code {
+  padding: .6rem .7rem; border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: .95rem; background: #fff; color: var(--text);
+}
+.login-code { letter-spacing: .4em; text-align: center; }
+.login-btn {
+  background: var(--accent); color: #fff; border: none; padding: .65rem;
+  border-radius: var(--radius); font-weight: 700; cursor: pointer; font-size: .9rem;
+}
+.login-btn:hover { filter: brightness(1.08); }
+.login-btn:disabled { opacity: .6; cursor: default; }
+.login-error { color: var(--live); font-size: .8rem; margin-top: .6rem; min-height: 1rem; }
+
+/* ── Predict tab ────────────────────────────────────────────────────────────── */
+.predict-head {
+  display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+  flex-wrap: wrap; margin-bottom: 1rem; padding-bottom: .75rem;
+  border-bottom: 1px solid var(--border);
+}
+.predict-who { display: flex; align-items: center; gap: .5rem; font-size: .85rem; }
+.predict-nudge {
+  font-size: .72rem; font-weight: 600; color: var(--accent);
+  background: #e6f2ea; border-radius: 999px; padding: .25rem .7rem;
+}
+
+.predict-list { display: grid; gap: .7rem; }
+@media (min-width: 620px) {
+  .predict-list { grid-template-columns: 1fr 1fr; }
+}
+
+.predict-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: .85rem 1rem 1rem; position: relative;
+}
+.pc-state {
+  position: absolute; top: .7rem; right: .8rem;
+  font-size: .6rem; font-weight: 800; letter-spacing: .8px; text-transform: uppercase;
+  padding: .15rem .45rem; border-radius: 4px;
+}
+.pc-state-open     { background: #e6f2ea; color: var(--accent); }
+.pc-state-locked   { background: #efe7d8; color: #9a7b2e; }
+.pc-state-finished { background: #e9e6e0; color: var(--muted); }
+
+.pc-teams { display: flex; align-items: center; gap: .5rem; font-weight: 700; padding-right: 4rem; }
+.pc-team { font-size: .95rem; }
+.pc-vs { color: var(--muted); font-size: .72rem; font-weight: 600; }
+.pc-when { color: var(--muted); font-size: .74rem; margin-top: .2rem; }
+
+.pc-form { display: flex; align-items: center; gap: .4rem; margin: .8rem 0 .55rem; }
+.pc-score {
+  width: 3rem; padding: .4rem; text-align: center; font-size: 1.05rem; font-weight: 700;
+  border: 1px solid var(--border); border-radius: var(--radius); background: #fff; color: var(--text);
+}
+.pc-dash { color: var(--muted); font-weight: 700; }
+.pc-save {
+  margin-left: auto; background: var(--accent); color: #fff; border: none;
+  padding: .45rem .9rem; border-radius: var(--radius); font-weight: 700; cursor: pointer; font-size: .82rem;
+}
+.pc-save:hover { filter: brightness(1.08); }
+.pc-save:disabled { opacity: .6; cursor: default; }
+
+.pc-foot {
+  display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap;
+  font-size: .72rem; color: var(--muted);
+}
+.pc-countdown { font-variant-numeric: tabular-nums; font-weight: 600; }
+.pc-mine { margin-top: .5rem; font-size: .8rem; }
+.pc-result { margin: .6rem 0 .4rem; font-size: .9rem; }
+.pc-hidden { margin-top: .55rem; font-size: .78rem; color: var(--muted); font-style: italic; }
+
+/* prediction rows (inside locked / finished cards) */
+.pred-rows, .lb-preds { display: grid; gap: .3rem; margin-top: .5rem; }
+.pred-row, .lbp-row {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: .8rem; padding: .3rem .5rem; border-radius: 4px; background: #f7f4ef;
+}
+.pred-name { font-weight: 600; }
+.pred-score, .lbp-pred { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 700; }
+.pred-pts { font-weight: 800; font-size: .78rem; min-width: 2rem; text-align: right; }
+.pred-me { outline: 2px solid var(--person-color, var(--accent)); outline-offset: -2px; }
+
+.pred-hit   { background: #e3f3e8; }
+.pred-hit   .pred-pts, .pred-hit   .lbp-pred { color: #1a7d44; }
+.pred-exact { background: #c9efd5; }
+.pred-exact .pred-pts { color: #0f6b34; }
+.pred-miss  { background: #f6e3e1; }
+.pred-miss  .pred-pts { color: var(--live); }
+
+/* ── Combined standings ─────────────────────────────────────────────────────── */
+.sort-toggle { display: flex; align-items: center; gap: .4rem; margin-bottom: .6rem; flex-wrap: wrap; }
+.sort-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
+.sort-btn {
+  background: var(--card); border: 1px solid var(--border); color: var(--muted);
+  padding: .25rem .65rem; border-radius: 999px; cursor: pointer; font-size: .75rem; font-weight: 600;
+}
+.sort-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.lb-combined .lb-row {
+  grid-template-columns: 2.6rem 1fr 3.4rem 3rem 3rem 2.2rem;
+}
+.lb-combined .col-sub {
+  text-align: right; font-variant-numeric: tabular-nums; font-size: .82rem; color: var(--muted);
+}
+.lb-combined .col-pred { color: var(--accent); }
+.lb-combined .col-exp { text-align: right; }
+.expand-btn {
+  background: transparent; border: none; color: var(--muted);
+  cursor: pointer; font-size: .9rem; padding: .2rem; transition: transform .15s;
+}
+.expand-btn.open { transform: rotate(180deg); }
+.lb-combined-row { transition: background .15s; }
+
+.lb-preds { padding: .4rem 1rem .6rem 2.9rem; background: #f7f4ef; border-top: 1px solid var(--border); }
+.lbp-match { font-weight: 600; }
+.lbp-actual { color: var(--muted); font-size: .72rem; margin-left: .5rem; }
+.lbp-note { font-size: .72rem; color: var(--muted); font-style: italic; padding: .3rem .5rem; }
+
+@media (max-width: 559px) {
+  .lb-combined .lb-row { grid-template-columns: 2.2rem 1fr 3rem 2.2rem; }
+  .lb-combined .col-sub { display: none; }
+}
+
+/* ── Scoring tab — prediction section ───────────────────────────────────────── */
+.hiw-predict { margin-top: 1.5rem; border-top: 2px solid var(--border); padding-top: 1rem; }
+.hiw-tag {
+  font-size: .6rem; font-weight: 800; background: var(--accent); color: #fff;
+  padding: .1rem .4rem; border-radius: 4px; vertical-align: middle; letter-spacing: .5px;
+}
+.hiw-predict h4 { margin: 1rem 0 .4rem; font-size: .95rem; }

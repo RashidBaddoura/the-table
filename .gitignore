@@ -1,0 +1,8 @@
+# Secrets — never commit
+.env
+.env.*
+scripts/players.local.json
+scripts/*.local.json
+
+# Node
+node_modules/

@@ -12,6 +12,9 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
     steps:
       - name: Checkout repository
@@ -24,6 +27,13 @@ jobs:
 
       - name: Fetch latest data
         run: node scripts/update-data.js
+
+      # Sync into Supabase (matches + prediction scoring). Skips automatically
+      # until you add the SUPABASE_SERVICE_ROLE_KEY repo secret (Settings →
+      # Secrets and variables → Actions). See README v2 / supabase/SETUP.md.
+      - name: Sync to Supabase
+        if: ${{ env.SUPABASE_SERVICE_ROLE_KEY != '' }}
+        run: node scripts/sync-supabase.mjs
 
       - name: Commit if changed
         run: |

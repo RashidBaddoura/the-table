@@ -3,6 +3,21 @@ export const LIVE_URL =
   'https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json';
 export const FALLBACK_URL = 'data/worldcup.json';
 
+// ─── Supabase (v2 — predictions backend) ─────────────────────────────────────
+// The anon/publishable key is PUBLIC by design — security is enforced by RLS,
+// not by hiding it. Paste your project values here after creating the project
+// (see README "Supabase setup"). Until both are set, the predictions features
+// stay dormant and the v1 leaderboard/schedule/results work exactly as before.
+export const SUPABASE_URL      = 'https://qpgxmgftaveckwqomhqy.supabase.co';
+export const SUPABASE_ANON_KEY = 'sb_publishable_fVWmg9ijvHkrW2gI-vBBDw_mybNIHjd';
+
+// Login email convention must match scripts/_admin.mjs: slug(name)@thetable.local
+export const LOGIN_EMAIL_DOMAIN = 'thetable.local';
+
+// Headline ranking = team_points * team + prediction_points * prediction.
+// Default is a raw 1:1 sum; tune here later without touching code.
+export const SCORING_WEIGHTS = { team: 1, prediction: 1 };
+
 // ─── Roster — edit this to change team assignments ───────────────────────────
 // Names MUST match the openfootball dataset exactly (case-sensitive).
 export const ROSTER = {
