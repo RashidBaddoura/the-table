@@ -377,6 +377,23 @@
       "time": "18:00 UTC-4",
       "team1": "Scotland",
       "team2": "Morocco",
+      "score": {
+        "ft": [
+          0,
+          1
+        ],
+        "ht": [
+          0,
+          1
+        ]
+      },
+      "goals1": [],
+      "goals2": [
+        {
+          "name": "Ismael Saibari",
+          "minute": "2"
+        }
+      ],
       "group": "Group C",
       "ground": "Boston (Foxborough)"
     },
@@ -386,6 +403,31 @@
       "time": "20:30 UTC-4",
       "team1": "Brazil",
       "team2": "Haiti",
+      "score": {
+        "ft": [
+          3,
+          0
+        ],
+        "ht": [
+          3,
+          0
+        ]
+      },
+      "goals1": [
+        {
+          "name": "Matheus Cunha",
+          "minute": "23"
+        },
+        {
+          "name": "Matheus Cunha",
+          "minute": "36"
+        },
+        {
+          "name": "Vinícius Júnior",
+          "minute": "45+3"
+        }
+      ],
+      "goals2": [],
       "group": "Group C",
       "ground": "Philadelphia"
     },
