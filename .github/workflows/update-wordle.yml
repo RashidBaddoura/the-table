@@ -1,0 +1,30 @@
+name: Update daily Wordle
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: wordle-daily-feed
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Fetch published daily puzzles
+        run: node scripts/update-wordle.mjs
+      - name: Publish refreshed feed
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add wordle/data/puzzles.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore: refresh daily Wordle puzzles'
+            git pull --rebase origin master
+            git push origin HEAD:master
+          fi
